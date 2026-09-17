@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reset password — Chord Creatures</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 28rem; margin: 2.5rem auto; padding: 0 1rem; color: #3A2F26; background: #F3E6D4; }
+    h1 { font-size: 1.25rem; }
+    input, button { width: 100%; box-sizing: border-box; padding: 0.7rem; margin: 0.35rem 0; font-size: 1rem; }
+    .msg { margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Choose a new password</h1>
+  <p>This page only sets the password. It does not open the app.</p>
+  <input id="p1" type="password" placeholder="New password" />
+  <input id="p2" type="password" placeholder="Again" />
+  <button id="go" type="button">Save password</button>
+  <p class="msg" id="msg">Open this from the reset email on this phone.</p>
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const url = "https://chpbpmofuynujxfawfvs.supabase.co";
+    const anon = "sb_publishable_rVTtQo3-dY8licUH5Cn2tw_W1Nmt7BQ";
+    const sb = createClient(url, anon);
+    const msg = document.getElementById("msg");
+    document.getElementById("go").onclick = async () => {
+      const a = document.getElementById("p1").value;
+      const b = document.getElementById("p2").value;
+      if (a.length < 6) { msg.textContent = "Use at least 6 characters."; return; }
+      if (a !== b) { msg.textContent = "Those did not match."; return; }
+      const { error } = await sb.auth.updateUser({ password: a });
+      msg.textContent = error
+        ? ("Could not save: " + error.message + " Open the newest reset email and try again.")
+        : "Password saved. Open Chord Creatures and sign in.";
+    };
+  </script>
+</body>
+</html>
