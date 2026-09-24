@@ -16,11 +16,14 @@
   .note { color: #6D737A; font-size: .95rem; line-height: 1.4; }
   .err { color: #A65B3A; }
   .ok { color: #2F6B3A; }
+  .card { background: #FFF8F0; border: 1px solid #DFCDB8; border-radius: 16px;
+    padding: 1.2rem 1rem; }
+  #done { display: none; }
 </style>
 </head>
 <body>
-<h1>Choose a new password</h1>
-<p class="note">This page only sets the password. It does not open the app. Open it from the Reset password button in the newest email.</p>
+<h1 id="title">Choose a new password</h1>
+<p class="note" id="lead">This page only sets the password. It does not open the app. Open it from the Reset password button in the newest email.</p>
 <div id="box">
   <label>New password</label>
   <input id="p1" type="password" autocomplete="new-password">
@@ -28,6 +31,10 @@
   <input id="p2" type="password" autocomplete="new-password">
   <p id="msg" class="note"></p>
   <button id="go" type="button" disabled>Save password</button>
+</div>
+<div id="done" class="card">
+  <p class="ok"><strong>Password saved.</strong></p>
+  <p class="note">Open Chord Creatures and sign in with the new password. You can close this page.</p>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -45,6 +52,15 @@ function say(t, ok) {
 function ready() {
   go.disabled = false;
   say('Link is good. Choose a password, then sign in in the app.', true);
+}
+function finished() {
+  document.getElementById('p1').value = '';
+  document.getElementById('p2').value = '';
+  document.getElementById('box').style.display = 'none';
+  document.getElementById('lead').style.display = 'none';
+  document.getElementById('title').textContent = 'Password updated';
+  document.getElementById('done').style.display = 'block';
+  sb.auth.signOut().catch(() => {});
 }
 async function boot() {
   const q = new URLSearchParams(location.search);
@@ -81,7 +97,7 @@ go.onclick = async () => {
   if (!session) { say('Auth session missing. Open the newest reset email and try again.'); return; }
   const { error } = await sb.auth.updateUser({ password: a });
   if (error) { say(error.message); return; }
-  say('Password saved. Open Chord Creatures and sign in.', true);
+  finished();
 };
 </script>
 </body>
